@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>2D 桌宠</title>
+  <style>
+    /* ============================================================
+       地基三条：整页透明、不滚动、不选中
+       桌面容器必须完全透明，否则会出现一块难看的白/黑底板。
+       ============================================================ */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;   /* 关键 */
+      user-select: none;
+      cursor: default;
+    }
+
+    /* 舞台 = 整个窗口。立绘、气泡、HUD 都在这里面绝对定位。 */
+    #stage {
+      position: absolute;
+      inset: 0;
+      /* ★ 别在这里加 background。哪怕写成 rgba(255,255,255,0.01)，
+         透明区也会变得「不那么透明」，桌宠就没法真正浮在桌面上了。 */
+    }
+
+    /* ------------------------------------------------------------
+       立绘容器
+       ------------------------------------------------------------
+       ★ 这里是 2D 版最需要想清楚的一处。
+
+       把 #pet 做成一个「零尺寸」的元素，它的原点就是立绘的锚点
+       （脚底中线）。子元素用 left:0 / bottom:0 + translateX(-50%)
+       把立绘的脚底中线对到这个原点上。
+
+       这样一来，局部坐标就非常干净：
+           x ∈ [-宽/2, +宽/2]   y ∈ [-高, 0]
+       之后所有变换（旋转、缩放）都绕这个原点做，用一条矩阵就能算完 ——
+       命中判定也能用同一个矩阵反解，不用去猜浏览器的
+       transform-origin 到底把原点摆哪了。
+
+       这是被 3D 版那个「身体一压扁，脸就被盖住」的 bug 教会的：
+       **锚点约定必须只有一处，且写死在代码里。**
+       ------------------------------------------------------------ */
+    #pet {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      transform-origin: 0 0;     /* 和上面的约定保持一致，别改 */
+      will-change: transform;
+    }
+
+    /* 立绘本体（贴图模式） */
+    #sprite {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      transform: translateX(-50%);   /* 把图片的横向中点对到原点 */
+      display: none;
+      -webkit-user-drag: none;
+      pointer-events: none;          /* 命中判定自己算，不靠浏览器 */
+    }
+    #sprite.pixelated { image-rendering: pixelated; }
+
+    /* 眨眼用的 #eyelids 覆盖层已删除（2026-09-16）—— 见 README。 */
+
+    /* 矢量小人（没有贴图时的占位形象）。
+       它和贴图共用同一个「脚底中线在原点」的约定。 */
+    #vector {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      transform: translateX(-50%);
+      display: none;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ------------------------------------------------------------
+       对话气泡
+       ------------------------------------------------------------
+       ★ 位置由 JS 每帧算出来（跟着头顶走），所以这里不写 top/left。
+       ★ 但必须给一个「最低高度」兜底：左上角的 HUD 占着 top 8~56px
+         那一条。气泡如果飘到那儿就会和 HUD 叠在一起，两行字互相压着
+         谁都看不清 —— 这个 bug 在 3D 版里出现过一次，截图上一眼就能看到。
+       ------------------------------------------------------------ */
+    #bubble {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 220px;
+      padding: 7px 11px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      font: 13px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: #2c2c2a;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.22s;
+      /* 桌面壁纸什么颜色都可能有，加一层投影保证白气泡在任何背景上都看得清 */
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+      white-space: nowrap;
+    }
+    #bubble.show { opacity: 1; }
+
+    /* 气泡底下的小尖角，让它明确「是从这个人嘴里说出来的」 */
+    #bubble::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -6px;
+      margin-left: -6px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #ffffff;
+      filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.08));
+    }
+
+    /* ------------------------------------------------------------
+       状态面板 —— 纯粹为了让你看清「穿透逻辑在做什么」。
+       正式版本可以删掉（debug.showHud 改 false 即可）。
+       ★ 特意做得很窄（两行、约 150px 宽），好给气泡让地方。
+       ------------------------------------------------------------ */
+    #hud {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      font: 11px/1.45 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: #2c2c2a;
+      pointer-events: none;      /* HUD 本身绝不能挡住命中判定 */
+      white-space: nowrap;
+    }
+    #hud .k { color: #5f5e5a; }
+    #hud .hit  { color: #0f6e56; font-weight: 600; }
+    #hud .miss { color: #993c1d; font-weight: 600; }
+
+    /* ------------------------------------------------------------
+       ★ 命中判定的可视化 —— 调「点不中」时把它打开
+       （desktop/config.js 里 debug.showHitMask 改 true）
+
+       它是把遮罩网格按格画出来的，所以你能一眼看出：
+         判定区是不是歪的、是不是比人小了一圈、耳朵有没有算进去。
+       这些光看数字是看不出来的，必须画出来。
+       ------------------------------------------------------------ */
+    #hitmask {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: none;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    #hitmask.on { display: block; }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <!-- 立绘（贴图模式 + 矢量模式，二选一显示） -->
+    <div id="pet">
+      <svg id="vector" xmlns="http://www.w3.org/2000/svg"></svg>
+      <img id="sprite" alt="桌宠立绘" />
+      <!-- 眨眼用的「眼睑」覆盖层已删除（2026-09-16）—— 见 README。 -->
+    </div>
+
+    <!-- 命中判定可视化（调试用） -->
+    <canvas id="hitmask"></canvas>
+
+    <div id="bubble"></div>
+
+    <!-- ------------------------------------------------------------
+         ★ HUD（「命中：/ 操作：」那块状态面板）已经删掉了。
+            它是原型阶段用来看「穿透逻辑在做什么」的调试工具，
+            正式当桌宠用的时候只会挡住她、影响观感。
+
+            保留了一份在下面，用 debug.showHud 控制 ——
+            以后调「点不中」「点到空气也有反应」这类问题时，
+            把它打开就能看着状态调，比盯着一堆数字强。
+         ------------------------------------------------------------ -->
+    <div id="hud" style="display:none">
+      <div><span class="k">命中：</span><span id="hitState" class="miss">透明区（穿透）</span></div>
+      <div><span class="k">操作：</span>拖=移动 · 点=换立绘 · 右键=退出</div>
+    </div>
+  </div>
+
+  <!-- 2D 版没有任何外部依赖，所以这里不用 importmap，直接一个 module 就行。 -->
+  <script type="module" src="./renderer.js"></script>
+
+  <!-- 诊断：渲染进程报错时把错误显示出来，省得你对着空窗口猜原因。
+       正式版本可以删掉这段。 -->
+  <script>
+    window.addEventListener('error', (e) => {
+      const hud = document.getElementById('hud');
+      if (hud) {
+        hud.innerHTML = '<div style="color:#a32d2d">渲染出错：' +
+          (e.message || e.type) + '</div>';
+      }
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      const hud = document.getElementById('hud');
+      if (hud) {
+        hud.innerHTML = '<div style="color:#a32d2d">加载失败：' +
+          ((e.reason && e.reason.message) || e.reason) + '</div>';
+      }
+    });
+  </script>
+</body>
+</html>

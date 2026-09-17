@@ -1,0 +1,19 @@
+{
+  "name": "deskpet-2d",
+  "version": "0.1.0",
+  "description": "2D 桌宠 —— 透明窗口 + 点击穿透 + 拖拽 + 换贴图做表情",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:safe": "electron --use-gl=swiftshader --enable-unsafe-swiftshader --no-sandbox .",
+    "test:drag": "node tests/drag.test.js",
+    "test:ui": "electron tests/renderer.test.js",
+    "test:app": "electron tests/app.test.js",
+    "test:config": "electron tests/config.test.js",
+    "test": "npm run test:drag && npm run test:ui && npm run test:app && npm run test:config",
+    "smoke": "electron tests/smoke/visual-check.js"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}

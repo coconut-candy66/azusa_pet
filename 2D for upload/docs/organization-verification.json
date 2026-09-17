@@ -1,0 +1,187 @@
+{
+  "runtime_files_sha256_unchanged": 31,
+  "markdown_links_checked": 44,
+  "broken_links": 0,
+  "reproduced_assets_matching_runtime_and_final": 20,
+  "launchers_gbk_crlf_preserved": 4,
+  "cutout_script_default_run": "passed; no installation performed",
+  "application_code_or_config_changes": false,
+  "checks": [
+    {
+      "document": "README.md",
+      "target": "desktop/启动桌宠.cmd"
+    },
+    {
+      "document": "README.md",
+      "target": "desktop/兼容模式启动.cmd"
+    },
+    {
+      "document": "README.md",
+      "target": "desktop/调试启动.cmd"
+    },
+    {
+      "document": "README.md",
+      "target": "desktop/README.md"
+    },
+    {
+      "document": "README.md",
+      "target": "desktop/README.md"
+    },
+    {
+      "document": "README.md",
+      "target": "deskpet-demo/README.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/technical-notes.md"
+    },
+    {
+      "document": "README.md",
+      "target": "art/README.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/roadmap.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/organization-20260917.md"
+    },
+    {
+      "document": "README.md",
+      "target": "desktop/config.js"
+    },
+    {
+      "document": "README.md",
+      "target": "art/README.md"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "../README.md"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "../deskpet-demo/README.md"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "启动桌宠.cmd"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "兼容模式启动.cmd"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "调试启动.cmd"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "_启动自检.cmd"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "桌面自检说明.txt"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "../README.md"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "config.js"
+    },
+    {
+      "document": "desktop\\README.md",
+      "target": "../deskpet-demo/config/defaults.js"
+    },
+    {
+      "document": "deskpet-demo\\README.md",
+      "target": "../README.md"
+    },
+    {
+      "document": "deskpet-demo\\README.md",
+      "target": "../desktop/README.md"
+    },
+    {
+      "document": "deskpet-demo\\README.md",
+      "target": "../docs/technical-notes.md"
+    },
+    {
+      "document": "deskpet-demo\\README.md",
+      "target": "../art/README.md"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "../README.md"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "../deskpet-demo/assets/sprites"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "final"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "backups/2026-09-17-before-cutout"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "backups/2026-09-17-before-organization"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "reports/2026-09-17-cutout"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "reports/2026-09-17-cutout/五套立绘完成预览.png"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "reports/2026-09-17-cutout/after-light.png"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "reports/2026-09-17-cutout/after-dark.png"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "reports/2026-09-17-cutout/处理说明.md"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "reports/2026-09-17-cutout/verification.json"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "reports/2026-09-17-cutout/outfit-test.log"
+    },
+    {
+      "document": "art\\README.md",
+      "target": "../refs"
+    },
+    {
+      "document": "docs\\roadmap.md",
+      "target": "../README.md"
+    },
+    {
+      "document": "docs\\roadmap.md",
+      "target": "technical-notes.md"
+    },
+    {
+      "document": "docs\\roadmap.md",
+      "target": "../deskpet-demo/README.md"
+    },
+    {
+      "document": "docs\\technical-notes.md",
+      "target": "../README.md"
+    },
+    {
+      "document": "docs\\technical-notes.md",
+      "target": "../deskpet-demo/README.md"
+    }
+  ]
+}
