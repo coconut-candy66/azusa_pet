@@ -1,0 +1,25 @@
+# Local runtime dependencies
+node_modules/
+
+# Runtime logs and screenshots
+desktop/logs/
+*.log
+deskpet-demo/screenshots/
+
+# Reference artwork is local-only
+refs/
+
+# Keep the art index; binaries, backups and reports stay local
+/art/*
+!/art/README.md
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
